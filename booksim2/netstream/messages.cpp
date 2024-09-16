@@ -34,15 +34,15 @@ namespace Booksim
 
         // cork the connection
         int flag = 1;
-        setsockopt (os.so, SOL_TCP, TCP_CORK, &flag, sizeof (flag));
-
+        // setsockopt (os.so, SOL_TCP, TCP_CORK, &flag, sizeof (flag));
+        setsockopt(os.so, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(flag));
         os.put(&(msg.size), sizeof(int));
         os.put(&msg, msg.size);
 
         // uncork the connection
         flag = 0;
-        setsockopt (os.so, SOL_TCP, TCP_CORK, &flag, sizeof (flag));
-
+        // setsockopt (os.so, SOL_TCP, TCP_CORK, &flag, sizeof (flag));
+        setsockopt(os.so, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(flag));
         // os.flush();
 
         return os;

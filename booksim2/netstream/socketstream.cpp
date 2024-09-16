@@ -46,10 +46,14 @@ namespace Booksim
 
         // Bind it to the listening port
         unlink(socket_path);
-        if (bind(so, (struct sockaddr*)&addr, sizeof(addr)) != 0) {
-             cout << "Error binding socket." << endl;
-             return -1;
-        }
+        // if (bind(so, (struct sockaddr*)&addr, sizeof(addr)) != 0) {
+        //      cout << "Error binding socket." << endl;
+        //      return -1;
+        // }
+        if (::bind(so, (struct sockaddr*) &addr, sizeof(addr)) != -1 ){
+            return -1;
+        } 
+
         // Listen for connections
         if (::listen(so, NS_MAX_PENDING) != 0) {
              cout << "Error listening on socket." << endl;
