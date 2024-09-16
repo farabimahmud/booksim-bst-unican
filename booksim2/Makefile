@@ -41,9 +41,8 @@ DEFINE += -DDEADLOCK_ABORT=1
 #DEFINE += -DDEBUG_NETRACE=1
 
 INCPATH = -I. -Iarbiters -Iallocators -Irouters -Inetworks -Ipower
-CPPFLAGS += -Wall $(INCPATH) $(DEFINE)
-# @FIXME: remove -fpermissive 
-CPPFLAGS += -O3 -std=c++11
+CPPFLAGS += -Wall -Wno-deprecated-register -Wno-unused-private-field $(INCPATH) $(DEFINE)# @FIXME: remove -fpermissive 
+CPPFLAGS += -O3 -fPIC
 #CPPFLAGS += -std=c++11 -fno-inline-functions -O0
 #CPPFLAGS += -g
 # Enable this option if dynamic library compilation is needed
