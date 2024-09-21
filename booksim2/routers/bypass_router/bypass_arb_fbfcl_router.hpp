@@ -70,7 +70,7 @@ namespace Booksim
         vector<Credit *> _proc_credits;
 
         // Stage communication
-        vector<pair<Flit *, int>> _crossbar_flits;
+        vector<pair<Flit *, int> > _crossbar_flits;
 
         // SA-I input (expanded inputs with flits)
         vector<bool> _switch_arbiter_input_flits;
@@ -78,7 +78,7 @@ namespace Booksim
         map<int, Flit *> _buffer_write_flits; // (output port, expanded_input)
 
         // Lookahead Check Conflict
-        vector<pair<Lookahead *, int>> _lookahead_conflict_check_lookaheads; // (Lookahead, input)
+        vector<pair<Lookahead *, int> > _lookahead_conflict_check_lookaheads; // (Lookahead, input)
         map<int, int> _lookahead_conflict_check_flits; // (output port, expanded_input)
         // SA-O input
         map<int, Flit *> _switch_arbiter_output_flits; // input, Flit

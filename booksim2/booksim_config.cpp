@@ -153,6 +153,10 @@ namespace Booksim
       _int_map["st_prepare_delay"] = 0;
       _int_map["st_final_delay"]   = 1;
 
+      _int_map["gK"] = 6;        // Default number of chiplets in one dim
+      _int_map["gN"] = 2;        // Default number of chiplet dimensions
+      _int_map["lK"] = 4;        // Default number of cores per chiplet in one dim
+      _int_map["lN"] = 2;        // Default number of core dimensions
       //==== Event-driven =====================================
 
       _int_map["vct"] = 0; 
@@ -282,7 +286,7 @@ namespace Booksim
 
       _int_map["print_csv_results"] = 0;
 
-      _int_map["deadlock_warn_timeout"] = 256;
+      _int_map["deadlock_warn_timeout"] = 999;
 
       _int_map["viewer_trace"] = 0;
 

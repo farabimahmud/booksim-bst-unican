@@ -77,12 +77,13 @@ namespace Booksim
 
       // Routing
       string const rf = config.GetStr("routing_function") + "_" + config.GetStr("topology");
+      // printf("name of routing function: %s\n", rf.c_str());
       map<string, tRoutingFunction>::const_iterator rf_iter = gRoutingFunctionMap.find(rf);
       if(rf_iter == gRoutingFunctionMap.end()) {
         Error("Invalid routing function: " + rf);
       }
       _rf = rf_iter->second;
-
+      // printf("DEBUG: RF is set\n");
       // Alloc VC's
       _buf.resize(_inputs);
       for ( int i = 0; i < _inputs; ++i ) {
@@ -129,7 +130,7 @@ namespace Booksim
       if ( !_sw_allocator ) {
         Error("Unknown sw_allocator type: " + sw_alloc_type);
       }
-
+      // printf("DEBUG: SW allocator is set\n");
       string spec_sw_alloc_type = config.GetStr( "spec_sw_allocator" );
       if ( _speculative && ( spec_sw_alloc_type != "prio" ) ) {
         _spec_sw_allocator = Allocator::NewAllocator( this, "spec_sw_allocator",

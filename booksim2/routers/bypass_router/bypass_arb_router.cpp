@@ -669,7 +669,7 @@ namespace Booksim
 #endif
 
         // ((Lookahead *, input), bypass_state)
-        vector<pair<pair<Lookahead *, int>,BypassOutput>> lookahead_candidates;
+        vector<pair<pair<Lookahead *, int>,BypassOutput> > lookahead_candidates;
         // number of lookaheads per output
         vector<int> lookahead_requests_per_output;
         lookahead_requests_per_output.resize(_outputs,0);

@@ -209,6 +209,7 @@ namespace Booksim
 
     void SyntheticTrafficManager::_Inject( )
     {
+      printf("Entering _Inject\n");
         for ( int c = 0; c < _classes; ++c ) {
             for ( int source = 0; source < _nodes; ++source ) {
                 // Potentially generate packets for any (source,class)
@@ -237,6 +238,8 @@ namespace Booksim
                 //}
             }
         }
+    printf("Exiting _Inject\n");
+
     }
 
     bool SyntheticTrafficManager::_PacketsOutstanding( ) const

@@ -33,6 +33,11 @@
 #include <cstring>
 #include <climits>
 #include <cassert>
+#include <map>
+#include <vector>
+#include <list>
+#include <iostream>
+#include <set>
 #ifdef _WIN32_
 #pragma warning (disable: 4786)
 #include <ostream>
@@ -41,6 +46,43 @@
 namespace Booksim
 {
     using namespace std;
+    template<typename K, typename V>
+    void printMap(const std::map<K, V>& m) {
+        std::cout << "{ ";
+        for (const auto& [key, value] : m) {
+            std::cout << key << " : " << value << ", ";
+        }
+        std::cout << "\b\b }" << std::endl;
+    }
+
+    template<typename T>
+    void printList(const T& list) {
+        std::cout << "[ ";
+        for (const auto& element : list) {
+            std::cout << element << ", ";
+        }
+        if (!list.empty()) {
+            std::cout << "\b\b";  // Remove the last comma and space
+        }
+        std::cout << " ]" << std::endl;
+    }
+
+
+    template<typename T>
+    void printSet(const T& set) {
+        std::cout << "{ ";
+        bool first = true;
+        for (const auto& element : set) {
+            if (!first) {
+                std::cout << ", ";
+            }
+            std::cout << element;  // Now uses the overloaded << operator
+            first = false;
+        }
+        std::cout << " }" << std::endl;
+    }
+
+
 } // namespace Booksim
 
 #endif

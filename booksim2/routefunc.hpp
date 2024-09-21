@@ -49,6 +49,7 @@ namespace Booksim
     extern int gNumClasses;
     extern vector<int> gBeginVCs;
     extern vector<int> gEndVCs;
+    void hierarchical_mesh_routing(const Router *r, const Flit *f, int in_channel, OutputSet *outputs, bool inject);
 } // namespace Booksim
 
 #endif

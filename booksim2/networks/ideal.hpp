@@ -40,8 +40,8 @@ namespace Booksim
 
       int _k;
       int _n;
-      std::vector<std::queue<Flit *>> _output_buffer;
-      std::vector<std::queue<Credit *>> _input_buffer_credits;
+      std::vector<std::queue<Flit *> > _output_buffer;
+      std::vector<std::queue<Credit *> > _input_buffer_credits;
 
 
 

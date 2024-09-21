@@ -52,6 +52,7 @@
 #include "anynet.hpp"
 #include "dragonfly.hpp"
 #include "ideal.hpp"
+#include "hierarchical.hpp"
 #include "../NetworkInterface.h"
 #include "../routers/bypass_router/smart_router.hpp"
 
@@ -169,7 +170,10 @@ namespace Booksim
         } else if (topo == "ideal"){
             Ideal::RegisterRoutingFunctions() ;
             n = new Ideal(config, name);
-        } else {
+        } else if (topo == "hierarchical"){
+            Hierarchical::RegisterRoutingFunctions() ;
+            n = new Hierarchical(config, name);
+        }else {
             cerr << "Unknown topology: " << topo << endl;
         }
 

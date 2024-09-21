@@ -130,6 +130,10 @@ namespace Booksim
 
             virtual void AddInputChannel( FlitChannel *channel, CreditChannel *backchannel );
             virtual void AddOutputChannel( FlitChannel *channel, CreditChannel *backchannel );
+
+            void AddInputChannel( FlitChannel *channel, CreditChannel *backchannel, int port );
+            void AddOutputChannel( FlitChannel *channel, CreditChannel *backchannel, int port );
+
             // AddInput/OutputChannel methods with lookahead lines
             virtual void AddInputChannel( FlitChannel *channel, CreditChannel *backchannel, LookaheadChannel *lookahead_signals );
             virtual void AddOutputChannel( FlitChannel *channel, CreditChannel *backchannel, LookaheadChannel *lookahead_signals );

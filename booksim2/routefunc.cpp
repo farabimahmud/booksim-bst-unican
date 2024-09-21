@@ -51,6 +51,7 @@
 #include "tree4.hpp"
 #include "qtree.hpp"
 #include "cmesh.hpp"
+#include "hierarchical.hpp"
 
 namespace Booksim
 {
@@ -2125,6 +2126,198 @@ void min_adapt_torus( const Router *r, const Flit *f, int in_channel, OutputSet 
         }
     }
 
+
+    int GetOutputPort(const Router *r, const std::string &direction) {
+        int router_id = r->GetID();
+
+        if (router_id < gTotalNodes) {
+            // Local router
+            if (direction == "East") return 2;
+            if (direction == "West") return 1;
+            if (direction == "North") return 3;
+            if (direction == "South") return 4;
+            if (direction == "Global") return 5;
+            if (direction == "Node") return 0;
+        } else {
+            // Global router
+            if (direction == "East") return 2;
+            if (direction == "West") return 1;
+            if (direction == "North") return 3;
+            if (direction == "South") return 4;
+            if (direction == "Local") return 0;
+        }
+        return -1; // Invalid direction
+    }
+    int GetOutputPort(const int router_id, const std::string &direction) {
+
+        if (router_id < gTotalNodes) {
+            // Local router
+            if (direction == "East") return 2;
+            if (direction == "West") return 1;
+            if (direction == "North") return 3;
+            if (direction == "South") return 4;
+            if (direction == "Global") return 5;
+            if (direction == "Node") return 0;
+        } else {
+            // Global router
+            if (direction == "East") return 2;
+            if (direction == "West") return 1;
+            if (direction == "North") return 3;
+            if (direction == "South") return 4;
+            if (direction == "Local") return 0;
+        }
+        return -1; // Invalid direction
+    }
+// In routing_functions.cpp
+
+
+int dor_next_local_mesh(int cur_router_id, int dest_router_id)
+{
+    int cur_local_id = cur_router_id % gNumCoresPerChiplet;
+    int dest_local_id = dest_router_id % gNumCoresPerChiplet;
+
+    int cur_x = cur_local_id % lHK;
+    int cur_y = cur_local_id / lHK;
+
+    int dest_x = dest_local_id % lHK;
+    int dest_y = dest_local_id / lHK;
+
+    if (cur_x < dest_x)
+    {
+        return GetOutputPort(cur_router_id, "East");
+    }
+    else if (cur_x > dest_x)
+    {
+        return GetOutputPort(cur_router_id, "West");
+    }
+    else if (cur_y < dest_y)
+    {
+        return GetOutputPort(cur_router_id, "South");
+    }
+    else if (cur_y > dest_y)
+    {
+        return GetOutputPort(cur_router_id, "North");
+    }
+    else
+    {
+        // At destination
+        return GetOutputPort(cur_router_id, "Node");
+    }
+}
+
+
+
+int dor_next_global_mesh(int cur_chiplet_id, int dest_chiplet_id)
+{
+    int cur_x = cur_chiplet_id % gHK;
+    int cur_y = cur_chiplet_id / gHK;
+
+    int dest_x = dest_chiplet_id % gHK;
+    int dest_y = dest_chiplet_id / gHK;
+
+    if (cur_x < dest_x)
+    {
+        return GetOutputPort(cur_chiplet_id + gTotalNodes, "East");
+    }
+    else if (cur_x > dest_x)
+    {
+        return GetOutputPort(cur_chiplet_id + gTotalNodes, "West");
+    }
+    else if (cur_y < dest_y)
+    {
+        return GetOutputPort(cur_chiplet_id + gTotalNodes, "South");
+    }
+    else if (cur_y > dest_y)
+    {
+        return GetOutputPort(cur_chiplet_id + gTotalNodes, "North");
+    }
+    else
+    {
+        // At destination chiplet
+        return GetOutputPort(cur_chiplet_id + gTotalNodes, "Local");
+    }
+}
+
+
+
+int dor_next_hierarchical_mesh(int cur_router_id, int dest_node_id){
+  // Check if current router is local or global
+    if (cur_router_id < gTotalNodes)
+    {
+        // Local router
+        int cur_chiplet_id = cur_router_id / gNumCoresPerChiplet;
+        int dest_chiplet_id = dest_node_id / gNumCoresPerChiplet;
+        printf("cur_chiplet_id: %d, dest_chiplet_id: %d\n", cur_chiplet_id, dest_chiplet_id);
+        if (cur_chiplet_id == dest_chiplet_id)
+        {
+            // Destination is within the same chiplet
+            // Route within local mesh
+            printf("Destination within same chiplet\n");
+            return dor_next_local_mesh(cur_router_id, dest_node_id);
+        }
+        else
+        {
+            // Destination is in a different chiplet
+            // Route to center router to reach global mesh
+            int center_local_id = (lHK / 2) + (lHK / 2) * lHK;
+            int center_router_id = cur_chiplet_id * gNumCoresPerChiplet + center_local_id;
+
+            if (cur_router_id == center_router_id)
+            {
+                // At center router, connect to global router
+                return GetOutputPort(cur_router_id, "Global");
+            }
+            else
+            {
+                // Route towards center router
+                return dor_next_local_mesh(cur_router_id, center_router_id);
+            }
+        }
+    }
+    else
+    {
+        // Global router
+        int cur_chiplet_id = cur_router_id - gTotalNodes;
+        int dest_chiplet_id = dest_node_id / gNumCoresPerChiplet;
+
+        if (cur_chiplet_id == dest_chiplet_id)
+        {
+            // Reached destination chiplet
+            return GetOutputPort(cur_router_id, "Local");
+        }
+        else
+        {
+            // Route in global mesh towards destination chiplet
+            return dor_next_global_mesh(cur_chiplet_id, dest_chiplet_id);
+        }
+    }
+}
+
+
+void hierarchical_mesh_routing(const Router *r, const Flit *f, int in_channel, OutputSet *outputs, bool inject)
+{
+    int out_port = inject ? -1 : dor_next_hierarchical_mesh(r->GetID(), f->dest);
+    printf("outport: %d\n", out_port);
+    int vcBegin = gBeginVCs[f->cl];
+    int vcEnd = gEndVCs[f->cl];
+
+    assert(((f->vc >= vcBegin) && (f->vc <= vcEnd)) || (inject && (f->vc < 0)));
+
+    if (!inject && f->watch)
+    {
+        *gWatchOut << GetSimTime() << " | " << r->FullName() << " | "
+                   << "Adding VC range [" << vcBegin << "," << vcEnd << "]"
+                   << " at output port " << out_port
+                   << " for flit " << f->id
+                   << " (input port " << in_channel
+                   << ", destination " << f->dest << ")." << std::endl;
+    }
+
+    outputs->Clear();
+    printf("Adding VC range [%d, %d] at output port %d for flit %d\n", vcBegin, vcEnd, out_port, f->id);
+    outputs->AddRange(out_port, vcBegin, vcEnd);
+}
+
     //=============================================================
 
     void InitializeRoutingMap( const Configuration & config )
@@ -2220,5 +2413,7 @@ void min_adapt_torus( const Router *r, const Flit *f, int in_channel, OutputSet 
 
         gRoutingFunctionMap["chaos_mesh"]  = &chaos_mesh;
         gRoutingFunctionMap["chaos_torus"] = &chaos_torus;
+
+        gRoutingFunctionMap["mesh_hierarchical"] = &hierarchical_mesh_routing;
     }
 } // namespace Booksim

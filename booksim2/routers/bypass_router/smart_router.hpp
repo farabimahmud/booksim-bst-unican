@@ -119,11 +119,11 @@ namespace Booksim
         // FIXME: Unused for the moment.
         Allocator * _vc_allocator;
         //          output, FLIT
-        vector<pair<int, Flit *>> _crossbar_flits;
+        vector<pair<int, Flit *> > _crossbar_flits;
 
         //BSMOD: Change time to long long
         // processing cycle, flit
-        vector<queue<pair<long long, Flit *>>> _flits_to_BW;
+        vector<queue<pair<long long, Flit *> > > _flits_to_BW;
 
         virtual void _InternalStep();
 
@@ -135,7 +135,7 @@ namespace Booksim
         map<int, Credit *> _out_queue_smart_credits;
         vector<queue<Credit *> > _smart_credit_buffer;
         // FIXME: Hack to emulate OpenSMART consumption latency
-        vector<queue<pair<long long, Credit *>>> _destination_queue_credits;
+        vector<queue<pair<long long, Credit *> > > _destination_queue_credits;
         //vector<int> _destination_credit;
 
         // Avoid computation when there aren't flits in the router

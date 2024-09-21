@@ -37,12 +37,14 @@ DEFINE += -DDEADLOCK_ABORT=1
 #DEFINE += -DPIPELINE_DEBUG=1
 #DEFINE += -DDEBUG_FLATFLY=1
 #DEFINE += -DTOPOLOGY_DEBUG=1
-#DEFINE += -DPACKET_TRACE=1
+DEFINE += -DPACKET_TRACE=1
 #DEFINE += -DDEBUG_NETRACE=1
 
 INCPATH = -I. -Iarbiters -Iallocators -Irouters -Inetworks -Ipower
-CPPFLAGS += -Wall -Wno-deprecated-register -Wno-unused-private-field $(INCPATH) $(DEFINE)# @FIXME: remove -fpermissive 
-CPPFLAGS += -O3 -fPIC
+CPPFLAGS += -Wall -Wno-deprecated-register -Wno-register -Wno-unused-private-field $(INCPATH) $(DEFINE)# @FIXME: remove -fpermissive 
+CPPFLAGS += -O3 -fPIC -std=c++17
+CFLAGS += -Wall -Wno-deprecated-register -Wno-register -Wno-unused-private-field $(INCPATH) $(DEFINE)# @FIXME: remove -fpermissive 
+CFLAGS += -O3 -fPIC
 #CPPFLAGS += -std=c++11 -fno-inline-functions -O0
 #CPPFLAGS += -g
 # Enable this option if dynamic library compilation is needed
@@ -89,13 +91,13 @@ $(YACC_SRCS) $(YACC_HDRS): config.y
 	$(YACC) -d $<
 
 $(LEX_OBJS): $(LEX_SRCS) $(YACC_HDRS)
-	$(CC) $(CPPFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(YACC_OBJS): $(YACC_SRCS)
-	$(CC) $(CPPFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(NETRACE_OBJS): $(NETRACE_SRCS) $(NETRACE_HDRS)
-	$(CC) $(CPPFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 %.o: %.cpp
 	$(CXX) $(CPPFLAGS) -MMD -c $< -o $@

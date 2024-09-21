@@ -136,6 +136,36 @@ namespace Booksim
         channel->SetSource( this, _output_channels.size() - 1 ) ;
     }
 
+void Router::AddInputChannel( FlitChannel *channel, CreditChannel *backchannel, int port )
+{
+    // Resize vectors if necessary
+    if (_input_channels.size() <= static_cast<size_t>(port))
+    {
+        _input_channels.resize(port + 1, nullptr);
+        _input_credits.resize(port + 1, nullptr);
+    }
+
+    _input_channels[port] = channel;
+    _input_credits[port] = backchannel;
+    channel->SetSink( this, port );
+}
+
+void Router::AddOutputChannel( FlitChannel *channel, CreditChannel *backchannel, int port )
+{
+    // Resize vectors if necessary
+    if (_output_channels.size() <= static_cast<size_t>(port))
+    {
+        _output_channels.resize(port + 1, nullptr);
+        _output_credits.resize(port + 1, nullptr);
+    }
+
+    _output_channels[port] = channel;
+    _output_credits[port] = backchannel;
+    _channel_faults.resize(_output_channels.size(), false);
+    channel->SetSource( this, port );
+}
+
+
     // With lookahead lines for bypass
     void Router::AddInputChannel( FlitChannel *channel, CreditChannel *backchannel, LookaheadChannel *lookahead_signals )
     {

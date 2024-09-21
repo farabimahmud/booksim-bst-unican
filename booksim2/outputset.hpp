@@ -45,7 +45,12 @@ namespace Booksim
         int vc_end;
         int pri;
         int output_port;
+
+        friend std::ostream& operator<<(std::ostream& os, const sSetElement& element);
       };
+
+
+
 
       void Clear( );
       void Add( int output_port, int vc, int pri = 0 );

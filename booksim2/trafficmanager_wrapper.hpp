@@ -48,7 +48,7 @@ namespace Booksim
             virtual bool _SingleSim( ) { return true; }
 
         private:
-            vector<vector<queue<pair<Flit,Flit>>>> _ejection_queue;
+            vector<vector<queue<pair<Flit,Flit> > > > _ejection_queue;
 
             virtual void _RetirePacket(Flit * head, Flit * tail);
 

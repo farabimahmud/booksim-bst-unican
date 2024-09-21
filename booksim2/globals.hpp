@@ -47,6 +47,17 @@ namespace Booksim
     extern int gN;
     extern int gC;
 
+
+
+    extern int gHK; // Global K (number of chiplets per dimension)
+    extern int gHN; // Global N (number of dimensions in global mesh)
+    extern int lHK; // Local K (number of cores per dimension in chiplet)
+    extern int lHN; // Local N (number of dimensions in local mesh)
+    extern int gNumChiplets; // Total number of chiplets
+    extern int gNumCoresPerChiplet; // Number of cores per chiplet
+    extern int gTotalNodes; // Total number of nodes (cores)
+
+
     extern vector<int> gKvector;
     extern vector<int> gCvector;
 

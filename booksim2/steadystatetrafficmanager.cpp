@@ -102,6 +102,7 @@ namespace Booksim
 
     int SteadyStateTrafficManager::_IssuePacket( int source, int cl )
     {
+      printf("Entering _IssuePacket for source %d cl %d\n", source, cl);
       if(_injection_process[cl]->test(source)) {
         int dest = _traffic_pattern[cl]->dest(source);
         int size = _GetNextPacketSize(cl);
@@ -132,7 +133,7 @@ namespace Booksim
       _sim_state = warming_up;
       
       int converged = 0;
-      
+      printf("Entering steady state single sim\n");
       //once warmed up, we require 3 converging runs to end the simulation 
       vector<double> prev_latency(_classes, 0.0);
       vector<double> prev_accepted(_classes, 0.0);
@@ -147,12 +148,13 @@ namespace Booksim
           clear_last = false;
           _ClearStats( );
         }
+        printf("clears stats\n");
         
         
         for ( int iter = 0; iter < _sample_period; ++iter )
           _Step( );
         
-        cout << _sim_state << endl;
+        printf("Stepping is done\n");
         
         UpdateStats();
         DisplayStats();
@@ -257,6 +259,9 @@ namespace Booksim
         ++total_phases;
       }
       
+      
+      cout << "Current sim state:" << _sim_state << endl;
+
       if ( _sim_state == running ) {
         ++converged;
         

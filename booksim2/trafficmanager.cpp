@@ -44,6 +44,7 @@
 namespace Booksim
 {
 
+
     TrafficManager * TrafficManager::New(Configuration const & config,
             vector<Network *> const & net)
     {
@@ -754,6 +755,7 @@ namespace Booksim
 
     void TrafficManager::_RetireFlit( Flit *f, int dest )
     {
+        printf("TrafficManager::_RetireFlit\n");
         _deadlock_timer = 0;
 
         assert(_total_in_flight_flits[f->cl].count(f->id) > 0);
@@ -872,7 +874,12 @@ namespace Booksim
     long TrafficManager::_GeneratePacket( int source, int dest, int size, int cl, 
             long long time, int chain_aux )
     {
-
+    
+        std::cout << "Entering GeneratePacket " << time << ";"
+                << "source " << source << ";"
+                << "dest " << dest << ";"
+                << "size " << size << ";"
+                << "cl " << cl << "\n";
 #ifdef PACKET_TRACE
         if(_packet_trace_out) {
             *_packet_trace_out << time << ";"
@@ -978,6 +985,12 @@ namespace Booksim
                 cout<<"New Flit "<<f->src<<endl;
             }
 
+            std::cout << "New Flit " << GetSimTime() << " | "
+                    << "node" << source << " | "
+                    << "Enqueuing flit " << f->id
+                    << " (packet " << f->pid
+                    << ") at time " << time
+                    << "." << endl;
             if(f->watch) { 
                 *gWatchOut << GetSimTime() << " | "
                     << "node" << source << " | "
@@ -989,9 +1002,11 @@ namespace Booksim
 
             //BSMOD: evaluation of the number of injectino queues is added
             if(_injection_queues == 1) {
+                std::cout << "Enqueuing flit " << f->id << " at time " << time << " in queue 0" << std::endl;
                 _partial_packets[0][source].push_back(f);
             } else {
                 //BSMOD: original code without outer if-else
+                std::cout << "Enqueuing flit " << f->id << " at time " << time << " in queue " << cl << std::endl;
                 _partial_packets[cl][source].push_back(f);
             }
         }
@@ -1000,7 +1015,6 @@ namespace Booksim
 
     void TrafficManager::_Step( )
     {
-
         bool flits_in_flight = false;
         for(int c = 0; c < _classes; ++c) {
             flits_in_flight |= !_total_in_flight_flits[c].empty();
@@ -1026,6 +1040,12 @@ namespace Booksim
             for ( int n = 0; n < _nodes; ++n ) {
                 Flit * const f = _net[subnet]->ReadFlit( n );
                 if ( f ) {
+                    std::cout << GetSimTime() << " | "
+                            << "node" << n << " | "
+                            << "Ejecting flit " << f->id
+                            << " (packet " << f->pid << ")"
+                            << " from VC " << f->vc
+                            << "." << endl;                    
                     if(f->watch) {
                         *gWatchOut << GetSimTime() << " | "
                             << "node" << n << " | "
@@ -1065,7 +1085,7 @@ namespace Booksim
         if ( !_empty_network ) {
             _Inject();
         }
-
+        std::cout << "Done Inject " << std::endl;
         for(int subnet = 0; subnet < _subnets; ++subnet) {
 
             for(int n = 0; n < _nodes; ++n) {
@@ -1080,6 +1100,7 @@ namespace Booksim
 
                 if(_hold_switch_for_packet) {
                     list<Flit *> const & pp = _partial_packets[last_class][n];
+                    std::cout << "partial packets size: " <<  pp.size() << std::endl;
                     if(!pp.empty() && !pp.front()->head && (
                             !dest_buf->IsFullFor(pp.front()->vc, pp.front())
                             || _vct)
@@ -1127,6 +1148,7 @@ namespace Booksim
                             OutputSet route_set;
                             _rf(NULL, cf, -1, &route_set, true);
                             set<OutputSet::sSetElement> const & os = route_set.GetSet();
+                            printSet(os);
                             assert(os.size() == 1);
                             OutputSet::sSetElement const & se = *os.begin();
                             assert(se.output_port == -1);
@@ -1246,12 +1268,17 @@ namespace Booksim
 
                     if(f->head) {
                         if (_lookahead_routing) {
-                            if(!_noq) {
+                            if(!_noq) {                                
                                 const FlitChannel * inject = _net[subnet]->GetInject(n);
                                 const Router * router = inject->GetSink();
                                 assert(router);
                                 int in_channel = inject->GetSinkPort();
                                 _rf(router, f, in_channel, &f->la_route_set, false);
+                                    std::cout << GetSimTime() << " | "
+                                        << "node" << n << " | "
+                                        << "Generating lookahead routing info for flit " << f->id
+                                        << "." << endl;
+
                                 if(f->watch) {
                                     *gWatchOut << GetSimTime() << " | "
                                         << "node" << n << " | "
@@ -1291,7 +1318,18 @@ namespace Booksim
                         f->pri = numeric_limits<long long>::max() - _time;
                         assert(f->pri >= 0);
                     }
-
+                    std::cout << GetSimTime() << " | "
+                            << "node" << n << " | "
+                            << "Injecting flit " << f->id
+                            << " into subnet " << subnet
+                            << " vc " << f->vc
+                            << " at time " << _time
+                            << " with priority " << f->pri
+                            << " (packet " << f->pid
+                            << ", class = " << c
+                            << ", src = " << f->src 
+                            << ", dest = " << f->dest
+                            << ")." << endl;
                     if(f->watch) {
                         *gWatchOut << GetSimTime() << " | "
                             << "node" << n << " | "
@@ -1348,9 +1386,14 @@ namespace Booksim
             }
         }
 
+        printf("Trying to inject credits\n");
+
         for(int subnet = 0; subnet < _subnets; ++subnet) {
             for(int n = 0; n < _nodes; ++n) {
+                std::cout << "Trying to find credit for node " << n << " in subnet " << subnet << std::endl;
+                // printMap(flits[subnet]);
                 map<int, Flit *>::const_iterator iter = flits[subnet].find(n);
+
                 if(iter != flits[subnet].end()) {
                     Flit * const f = iter->second;
 
@@ -1367,6 +1410,10 @@ namespace Booksim
                     c->vc.insert(f->vc);
                     c->id = f->id;
                     _net[subnet]->WriteCredit(c, n);
+                    std::cout << "Injecting credit for VC " << f->vc 
+                            << " into subnet " << subnet 
+                            << " Flit: " << f->id
+                            << "." << endl;
 
 #ifdef TRACK_FLOWS
                     ++_ejected_flits[f->cl][n];
@@ -1382,7 +1429,7 @@ namespace Booksim
         ++_time;
         assert(_time);
         if(gTrace){
-            cout<<"TIME "<<_time<<endl;
+            std::cout<<"TIME "<<_time<<endl;
         }
 
     }

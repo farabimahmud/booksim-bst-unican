@@ -159,4 +159,12 @@ namespace Booksim
       }
       return single_output;
     }
+
+
+
+      std::ostream& operator<<(std::ostream& os, const OutputSet::sSetElement& element) {
+          return os << "{vc: " << element.vc_start << "-" << element.vc_end 
+                    << ", pri: " << element.pri 
+                    << ", port: " << element.output_port << "}";
+      }     
 } // namespace Booksim
