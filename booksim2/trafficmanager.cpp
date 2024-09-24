@@ -136,6 +136,7 @@ namespace Booksim
         // ============ Routing ============ 
 
         string rf = config.GetStr("routing_function") + "_" + config.GetStr("topology");
+        std::cout << "Routing function: " << rf << std::endl;
         map<string, tRoutingFunction>::const_iterator rf_iter = gRoutingFunctionMap.find(rf);
         if(rf_iter == gRoutingFunctionMap.end()) {
             Error("Invalid routing function: " + rf);
@@ -883,7 +884,7 @@ namespace Booksim
         }
 
 #endif // PACKET_TRACE
-
+        std::cout << "Generate packet" << std::endl;
         // Evaluation of the number of injection queues is added
         if(_injection_queues == 1) {
             if(_partial_packets[0][source].size() >= _inj_size) {
@@ -995,6 +996,7 @@ namespace Booksim
                 _partial_packets[cl][source].push_back(f);
             }
         }
+        std::cout << "Packet " << pid << " generated" << std::endl;
         return pid;
     }
 
@@ -1018,7 +1020,7 @@ namespace Booksim
             cout << "WARNING: Possible network deadlock." << endl;
 #endif
         }
-
+        std::cout << "Step " << _time << std::endl;
 
         vector<map<int, Flit *> > flits(_subnets);
 
@@ -1061,11 +1063,11 @@ namespace Booksim
             }
             _net[subnet]->ReadInputs( );
         }
-
+        std::cout << "Ejection " << _time << std::endl;
         if ( !_empty_network ) {
             _Inject();
         }
-
+        std::cout << "Injection " << _time << std::endl;
         for(int subnet = 0; subnet < _subnets; ++subnet) {
 
             for(int n = 0; n < _nodes; ++n) {
@@ -1347,7 +1349,7 @@ namespace Booksim
                 }	
             }
         }
-
+        std::cout << "Routing " << _time << std::endl;
         for(int subnet = 0; subnet < _subnets; ++subnet) {
             for(int n = 0; n < _nodes; ++n) {
                 map<int, Flit *>::const_iterator iter = flits[subnet].find(n);
@@ -1378,7 +1380,7 @@ namespace Booksim
             _net[subnet]->Evaluate( );
             _net[subnet]->WriteOutputs( );
         }
-
+        std::cout << "Evaluating Credit" << _time << std::endl;
         ++_time;
         assert(_time);
         if(gTrace){

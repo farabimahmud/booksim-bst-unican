@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 # Copyright (c) 2014-2020, University of Cantabria
 # All rights reserved.
@@ -32,7 +32,7 @@
 # Usage: ./injection_rate_swept_csv.sh <cfg_file> <inj_rate_list> <output_csv>
 
 BOOKSIM_HOME=../../booksim2
-TMP_OUTPUT=/tmp/booksim_outputs/
+TMP_OUTPUT=../booksim_outputs
 CONFIG_FILE=$1
 INJECTION_RATES=$2
 OUTPUT=$3

@@ -42,6 +42,7 @@
 #include "kncube.hpp"
 #include "ckncube.hpp"
 #include "smart_ckncube.hpp"
+#include "kionet.hpp"
 #include "fly.hpp"
 //#include "cmesh.hpp"
 #include "ckmesh.hpp"
@@ -169,6 +170,9 @@ namespace Booksim
         } else if (topo == "ideal"){
             Ideal::RegisterRoutingFunctions() ;
             n = new Ideal(config, name);
+        } else if (topo == "kionet") {
+            KioNet::RegisterRoutingFunctions() ;
+            n = new KioNet(config, name, false);
         } else {
             cerr << "Unknown topology: " << topo << endl;
         }
